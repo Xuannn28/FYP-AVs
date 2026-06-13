@@ -1,0 +1,103 @@
+{
+  "statistical_results": {
+    "Scene Coverage (%)": {
+      "single_mean": 7.771302211302212,
+      "single_std": 1.3759708569787872,
+      "coop_mean": 15.215479115479118,
+      "coop_std": 4.3317569653889745,
+      "improvement": 7.444176904176905,
+      "ci_lo": 7.092304898648648,
+      "ci_hi": 7.808454391891892,
+      "t_stat": 40.518931388777105,
+      "p_value_ttest": 9.665909632787011e-145,
+      "w_stat": 0.0,
+      "p_value_wilcoxon": 1.960685019840523e-68,
+      "cohens_d": 2.010920800340045
+    },
+    "Vehicle Recall (%)": {
+      "single_mean": 99.3127158167265,
+      "single_std": 3.361904725725875,
+      "coop_mean": 99.46138652021004,
+      "coop_std": 3.213155192647914,
+      "improvement": 0.14867070348353775,
+      "ci_lo": 0.05265005265005262,
+      "ci_hi": 0.26045909485080604,
+      "t_stat": 2.8078970872056828,
+      "p_value_ttest": 0.005227187373982076,
+      "w_stat": 0.0,
+      "p_value_wilcoxon": 0.011616044899262472,
+      "cohens_d": 0.13935359261316338
+    },
+    "blind_spot_pct": {
+      "mean": 7.444207616707618,
+      "std": 3.701873900043273
+    }
+  },
+  "scenario_meta": {
+    "2021_08_18_19_48_05": {
+      "agents": 2,
+      "frames_processed": 30
+    },
+    "2021_08_20_21_10_24": {
+      "agents": 3,
+      "frames_processed": 20
+    },
+    "2021_08_21_09_28_12": {
+      "agents": 3,
+      "frames_processed": 30
+    },
+    "2021_08_22_07_52_02": {
+      "agents": 5,
+      "frames_processed": 30
+    },
+    "2021_08_22_09_08_29": {
+      "agents": 2,
+      "frames_processed": 30
+    },
+    "2021_08_22_21_41_24": {
+      "agents": 3,
+      "frames_processed": 15
+    },
+    "2021_08_23_12_58_19": {
+      "agents": 2,
+      "frames_processed": 21
+    },
+    "2021_08_23_15_19_19": {
+      "agents": 2,
+      "frames_processed": 30
+    },
+    "2021_08_23_16_06_26": {
+      "agents": 3,
+      "frames_processed": 27
+    },
+    "2021_08_23_17_22_47": {
+      "agents": 3,
+      "frames_processed": 21
+    },
+    "2021_08_23_21_07_10": {
+      "agents": 3,
+      "frames_processed": 29
+    },
+    "2021_08_23_21_47_19": {
+      "agents": 3,
+      "frames_processed": 16
+    },
+    "2021_08_24_07_45_41": {
+      "agents": 4,
+      "frames_processed": 27
+    },
+    "2021_08_24_11_37_54": {
+      "agents": 3,
+      "frames_processed": 21
+    },
+    "2021_08_24_20_09_18": {
+      "agents": 2,
+      "frames_processed": 30
+    },
+    "2021_08_24_20_49_54": {
+      "agents": 2,
+      "frames_processed": 30
+    }
+  },
+  "total_frames": 407
+}

@@ -1,0 +1,212 @@
+[
+  {
+    "rank": 1,
+    "scenario": "2021_08_20_21_10_24",
+    "timestamp": "000117",
+    "n_agents": 3,
+    "n_recovered": 1,
+    "blind_pct": 13.264,
+    "recovered_vehicles": [
+      {
+        "center_ego": [
+          33.77855159609375,
+          2.618472675289013
+        ],
+        "dist_from_ego": 33.9,
+        "size": [
+          2.4508416652679443,
+          1.0641621351242065
+        ]
+      }
+    ]
+  },
+  {
+    "rank": 2,
+    "scenario": "2021_08_20_21_10_24",
+    "timestamp": "000115",
+    "n_agents": 3,
+    "n_recovered": 1,
+    "blind_pct": 13.232,
+    "recovered_vehicles": [
+      {
+        "center_ego": [
+          34.42614264649734,
+          2.311828763971789
+        ],
+        "dist_from_ego": 34.5,
+        "size": [
+          2.4508416652679443,
+          1.0641621351242065
+        ]
+      }
+    ]
+  },
+  {
+    "rank": 3,
+    "scenario": "2021_08_20_21_10_24",
+    "timestamp": "000113",
+    "n_agents": 3,
+    "n_recovered": 1,
+    "blind_pct": 13.205,
+    "recovered_vehicles": [
+      {
+        "center_ego": [
+          35.079029078557,
+          2.045991877052586
+        ],
+        "dist_from_ego": 35.1,
+        "size": [
+          2.4508416652679443,
+          1.0641621351242065
+        ]
+      }
+    ]
+  },
+  {
+    "rank": 4,
+    "scenario": "2021_08_20_21_10_24",
+    "timestamp": "000101",
+    "n_agents": 3,
+    "n_recovered": 1,
+    "blind_pct": 13.145,
+    "recovered_vehicles": [
+      {
+        "center_ego": [
+          39.61323609204658,
+          -0.638787804354763
+        ],
+        "dist_from_ego": 39.6,
+        "size": [
+          2.4508416652679443,
+          1.0641621351242065
+        ]
+      }
+    ]
+  },
+  {
+    "rank": 5,
+    "scenario": "2021_08_20_21_10_24",
+    "timestamp": "000111",
+    "n_agents": 3,
+    "n_recovered": 1,
+    "blind_pct": 13.139,
+    "recovered_vehicles": [
+      {
+        "center_ego": [
+          35.75403329610444,
+          1.7141910312305413
+        ],
+        "dist_from_ego": 35.8,
+        "size": [
+          2.4508416652679443,
+          1.0641621351242065
+        ]
+      }
+    ]
+  },
+  {
+    "rank": 6,
+    "scenario": "2021_08_20_21_10_24",
+    "timestamp": "000099",
+    "n_agents": 3,
+    "n_recovered": 1,
+    "blind_pct": 13.041,
+    "recovered_vehicles": [
+      {
+        "center_ego": [
+          40.366304705995105,
+          -1.0820528383343344
+        ],
+        "dist_from_ego": 40.4,
+        "size": [
+          2.4508416652679443,
+          1.0641621351242065
+        ]
+      }
+    ]
+  },
+  {
+    "rank": 7,
+    "scenario": "2021_08_20_21_10_24",
+    "timestamp": "000195",
+    "n_agents": 3,
+    "n_recovered": 1,
+    "blind_pct": 12.904,
+    "recovered_vehicles": [
+      {
+        "center_ego": [
+          46.47501554936986,
+          11.27890344529365
+        ],
+        "dist_from_ego": 47.8,
+        "size": [
+          2.0906050205230713,
+          0.9970585703849792
+        ]
+      }
+    ]
+  },
+  {
+    "rank": 8,
+    "scenario": "2021_08_23_21_07_10",
+    "timestamp": "000123",
+    "n_agents": 3,
+    "n_recovered": 1,
+    "blind_pct": 12.822,
+    "recovered_vehicles": [
+      {
+        "center_ego": [
+          23.237697747850845,
+          -14.39976861712683
+        ],
+        "dist_from_ego": 27.3,
+        "size": [
+          1.8166879415512085,
+          0.9225568771362305
+        ]
+      }
+    ]
+  },
+  {
+    "rank": 9,
+    "scenario": "2021_08_22_07_52_02",
+    "timestamp": "000073",
+    "n_agents": 5,
+    "n_recovered": 1,
+    "blind_pct": 12.503,
+    "recovered_vehicles": [
+      {
+        "center_ego": [
+          -22.024170550422767,
+          0.49583935568725224
+        ],
+        "dist_from_ego": 22.0,
+        "size": [
+          2.6787397861480713,
+          1.0166015625
+        ]
+      }
+    ]
+  },
+  {
+    "rank": 10,
+    "scenario": "2021_08_22_07_52_02",
+    "timestamp": "000079",
+    "n_agents": 5,
+    "n_recovered": 1,
+    "blind_pct": 12.211,
+    "recovered_vehicles": [
+      {
+        "center_ego": [
+          -36.1420032227173,
+          0.49469207976733287
+        ],
+        "dist_from_ego": 36.1,
+        "size": [
+          2.427854299545288,
+          1.0163782835006714
+        ]
+      }
+    ]
+  }
+]

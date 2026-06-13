@@ -1,0 +1,119 @@
+# Default configuration for Cooperative Perception System
+
+# Dataset Configuration
+dataset:
+  name: OPV2V
+  path: ~/Downloads/OPV2V
+  splits:
+    train: train
+    val: val
+    test: test
+
+# BEV (Bird's Eye View) Configuration
+bev:
+  height: 200              # BEV grid height (cells)
+  width: 200               # BEV grid width (cells)
+  resolution: 0.5          # meters per cell
+  spatial_extent:
+    x_min: -50.0          # meters
+    x_max: 50.0           # meters
+    y_min: -50.0          # meters
+    y_max: 50.0           # meters
+
+# Semantic Segmentation Configuration
+semantic:
+  num_classes: 6
+  class_names:
+    - background
+    - vehicle
+    - pedestrian
+    - cyclist
+    - road
+    - sidewalk
+  important_classes: [1, 2, 3]  # vehicle, pedestrian, cyclist (for filtering)
+  class_weights: [0.5, 2.0, 3.0, 2.5, 1.0, 1.0]  # For training loss
+
+# Model Configuration
+model:
+  encoder:
+    type: BEVEncoder
+    num_features: 64
+  segmentation:
+    type: SegHead
+    in_channels: 64
+
+# Training Configuration
+training:
+  batch_size: 4
+  num_epochs: 50
+  learning_rate: 0.001
+  optimizer: Adam
+  scheduler:
+    type: StepLR
+    step_size: 15
+    gamma: 0.5
+  num_workers: 4
+  checkpoint_dir: checkpoints
+  save_frequency: 10      # Save checkpoint every N epochs
+
+# Communication & Compression Configuration
+communication:
+  # Sparse encoding (only send non-zero cells)
+  use_sparse_encoding: true
+
+  # Semantic filtering (intelligent bandwidth reduction)
+  use_semantic_filtering: true
+  filter_config:
+    confidence_threshold: 0.7
+    important_classes: [1, 2, 3]
+    use_roi: true
+    center_focus: true
+    roi_bbox: null        # [x_min, y_min, x_max, y_max] or null for auto
+
+# Cooperative Perception Configuration
+cooperation:
+  # Pose-based spatial alignment
+  use_pose_alignment: true
+  bev_resolution: 0.5
+
+  # Fusion method
+  fusion_method: max      # Options: max, mean, attention
+
+  # Number of agents
+  max_agents: 5
+
+# Evaluation Configuration
+evaluation:
+  metrics:
+    - iou
+    - per_class_iou
+    - coverage
+    - bandwidth
+  save_visualizations: true
+  visualization_dir: visualizations
+  num_visualization_samples: 10
+
+# Device Configuration
+device:
+  use_cuda: true
+  device_id: 0
+
+# Logging Configuration
+logging:
+  log_dir: logs
+  log_frequency: 10      # Log every N batches
+  tensorboard: true
+
+# Experimental Settings
+experiment:
+  # Test different configurations
+  baselines:
+    - single_agent
+    - cooperative_no_alignment
+    - cooperative_with_alignment
+    - cooperative_with_filtering
+
+  # Ablation studies
+  ablations:
+    confidence_thresholds: [0.5, 0.6, 0.7, 0.8, 0.9]
+    num_agents: [2, 3, 4, 5]
