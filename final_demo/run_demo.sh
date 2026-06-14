@@ -1,14 +1,37 @@
 #!/bin/bash
-# run_demo.sh - Cooperative Perception Demo Orchestrator
+# ============================================================
+# run_demo.sh — Cooperative Perception Demo Orchestrator
+#
+# Two-stage pipeline that first checks whether the ego vehicle
+# can detect the target on its own, then conditionally pulls
+# RSU detections over the network if cooperation is needed.
 #
 # Flow:
-#   1. Ego runs YOLO self-assessment (ego_check.py)
-#   2. If RSU needed  -> SCP detections from RSU Pi -> fuse
-#      If ego sufficient -> run ego-only pipeline, skip RSU
+#   1. Ego self-assessment (ego_check.py)
+#        — Runs YOLO on all three ego images (25 / 50 / 75 % occlusion)
+#        — Exits 0 if ego confidence is sufficient, 1 if RSU needed
+#   2a. RSU needed  → SCP the detection JSON from the RSU Raspberry Pi
+#        — Uses sshpass for passwordless SCP; installs it if missing
+#        — Aborts with an error if the SCP transfer fails
+#   2b. Ego sufficient → skip RSU contact entirely (no SCP performed)
+#   3.  Run coop_perception.py
+#        — With --v2_det if RSU was contacted (cooperative fusion)
+#        — Without --v2_det if ego was sufficient (ego-only pipeline)
+#
+# Prerequisites:
+#   python3, sshpass (auto-installed via apt if absent)
+#   occlusion-images/ folder containing ego_25.jpg, ego_50.jpg,
+#   ego_75.jpg, v2.jpg, and homography.npy
 #
 # Usage:
 #   chmod +x run_demo.sh
 #   ./run_demo.sh
+#
+# Configuration (edit variables below):
+#   RSU_USER / RSU_HOST / RSU_PASS  — SSH credentials for the RSU Pi
+#   RSU_REMOTE_PATH                 — Path to JSON on the RSU Pi
+#   RSU_LOCAL_JSON                  — Local destination for the JSON
+# ============================================================
 
 RSU_USER="ops123"
 RSU_HOST="172.20.10.4"

@@ -1,3 +1,49 @@
+# ============================================================
+# queue_perception.py — Cooperative Queue Counting for Overtaking Decision
+#
+# Combines ego camera detections with RSU (Road-Side Unit) JSON detections
+# to count the total number of vehicles in a queue ahead and decide
+# whether it is safe to overtake.
+#
+# Pipeline:
+#   1. Ego runs YOLO on its own rear-facing image
+#   2. RSU detections loaded from JSON (produced by rsu_sender.py)
+#   3. Shared anchor vehicle used to compute bbox-corner homography
+#      (projects RSU bbox coordinates into ego camera space)
+#   4. RSU boxes matched to ego boxes by IoU — matches are WBF-fused,
+#      unmatched RSU boxes treated as hidden vehicles
+#   5. Total queue count triggers overtaking decision
+#
+# Outputs saved to the script directory:
+#   q01_ego_view.jpg   — Ego-only detection (driver perspective)
+#   q02_fused_panel.jpg — 3-panel strip: ego | RSU data | fused result
+#
+# Usage:
+#   py queue_perception.py \
+#       --ego ego_queue.jpg --rsu-json rsu_detections.json
+#
+#   With mirror flag (RSU and ego on opposite sides of the queue):
+#   py queue_perception.py \
+#       --ego ego_queue.jpg --rsu-json rsu_detections.json --mirror
+#
+# Arguments:
+#   --ego         Ego image — rear-facing driver view of queue   (required)
+#   --rsu-json    RSU detections JSON from rsu_sender.py         (required)
+#   --target      Comma-separated YOLO classes to count          (default: car,truck)
+#   --threshold   Max vehicles allowed before DO NOT OVERTAKE    (default: 3)
+#   --mirror      RSU and ego view the anchor from opposite ends
+#                 (swaps left/right corner correspondences in projection)
+#
+# Decision logic:
+#   total < threshold  → SAFE TO OVERTAKE
+#   total = threshold  → BORDERLINE
+#   total > threshold  → DO NOT OVERTAKE
+#
+# Fusion: Late Fusion + Weighted Box Fusion (WBF)
+#   Solovyev et al., "Weighted Boxes Fusion", IVC 2021
+#   Xu et al., "OPV2V", ICRA 2022
+# ============================================================
+
 import argparse
 import json
 import os
