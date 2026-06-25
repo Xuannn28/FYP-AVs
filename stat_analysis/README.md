@@ -1,347 +1,201 @@
-# Cooperative Perception for Autonomous Vehicles
-### FYP: Optimizing Cooperative Perception through Semantic Data Analytics
+## FYP: Optimizing Cooperative Perception through Semantic Data Analytics
+### Statistical Analysis Section
+
+Statistical and empirical proof that multi-agent cooperative perception
+outperforms single-agent (ego-only) perception, validated on two datasets:
+**OPV2V** (simulated LiDAR) and **DAIR-V2X** (real-world camera).
 
 ---
 
-## Table of Contents
-1. [Project Overview](#project-overview)
-2. [Dataset Structure (OPV2V)](#dataset-structure-opv2v)
-3. [Codebase Structure](#codebase-structure)
-4. [How to Run the Proof](#how-to-run-the-proof)
-5. [Metrics and Methodology](#metrics-and-methodology)
-6. [Results](#results)
-7. [References](#references)
+## Key Findings
+
+### OPV2V (Simulated, LiDAR, Inferential Statistics)
+
+| Metric | Single-Agent | Cooperative | Improvement |
+|---|---|---|---|
+| Scene Coverage (%) | 7.77% ± 1.38% | 15.22% ± 4.33% | **+7.44%** |
+| Vehicle Recall (%) | 99.31% ± 3.36% | 99.46% ± 3.21% | +0.15% |
+
+**Statistical significance:** paired t-test p = 9.67 × 10⁻¹⁴⁵, Wilcoxon p = 1.96 × 10⁻⁶⁸, Cohen's d = 2.011 (large effect), 95% bootstrap CI [+7.09%, +7.81%]
+16 scenarios, 407 frames analysed, 2–5 agents per scenario.
+
+### DAIR-V2X (Real-World, Camera, Descriptive Statistics)
+
+| Metric | Vehicle (single) | Cooperative (+ RSU) | Gain |
+|---|---|---|---|
+| Scene Coverage (%) | ~56% (varies by scene) | 100% (ground truth) | up to +44% |
+| Mean blind spot per frame | — | — | ~44% of scene objects hidden from vehicle alone |
+
+**Reported descriptively, not inferentially** — see [Methodology Note](#why-dair-v2x-is-descriptive) below.
+46 synchronised vehicle + infrastructure camera pairs from real-world intersections.
 
 ---
 
 ## Project Overview
 
-This project demonstrates that **cooperative perception — where multiple
-autonomous vehicles share their sensor observations — significantly outperforms
-single-agent (ego-only) perception** across multiple quantitative metrics.
+This project demonstrates that cooperative perception — sharing sensor
+observations between an ego vehicle and a cooperating agent (another
+vehicle or roadside infrastructure) — meaningfully improves single-agent
+perception. Two independent analyses support this:
 
-The proof is conducted on the **OPV2V** (Open Cooperative Perception for
-Vehicle-to-Vehicle) dataset using a Bird's-Eye-View (BEV) occupancy-grid
-framework with ground-truth vehicle bounding boxes.
+1. **OPV2V** — raw LiDAR point clouds are merged across 2–5 simulated
+   agents and compared to single-agent point density on a BEV occupancy
+   grid, with full inferential statistics (paired t-test, Wilcoxon, Cohen's d).
+2. **DAIR-V2X** — real-world vehicle and roadside infrastructure camera
+   detections are compared against ground-truth scene labels to quantify
+   how many objects are hidden from the vehicle's camera alone, and how
+   many of those the RSU's camera recovers.
 
-Key claims proven:
-- Cooperative perception improves **scene coverage** (area observed)
-- Cooperative perception improves **vehicle detection recall**
-- Cooperation reduces **blind spots** caused by occlusion and range limits
-- Improvements are **statistically significant** (paired t-test, Wilcoxon,
-  Cohen's d, 95% bootstrap CI)
-
----
-
-## Dataset Structure (OPV2V)
-
-The OPV2V dataset (Xu et al., ICRA 2022) simulates multi-agent driving
-scenarios using CARLA. Each scenario contains 2–5 Connected Autonomous
-Vehicles (CAVs), each recording synchronised LiDAR and camera data.
-
-### Download Splits
-
-| Split          | Folder          | Approx. Size | Scenarios |
-|----------------|-----------------|--------------|-----------|
-| Training       | `train-003/`    | ~108 GB      | 44        |
-| Validation     | `validate-002/` | ~58 GB       | varies    |
-| Test           | `test-012/`     | ~32 GB       | 16        |
-
-All splits live directly under `~/Downloads/`:
-```
-~/Downloads/
-├── train-003/
-├── validate-002/
-└── test-012/
-```
-
-### Directory Layout
-
-```
-test-012/
-└── test/
-    └── <scenario_timestamp>/          # e.g. 2021_08_22_07_52_02
-        ├── data_protocol.yaml         # CARLA simulation parameters
-        ├── <agent_id_A>/              # e.g. 5933  (ego by convention)
-        │   ├── <timestamp>.pcd        # LiDAR point cloud (ASCII PCD v0.7)
-        │   ├── <timestamp>.yaml       # Frame metadata
-        │   ├── <timestamp>_camera0.png
-        │   ├── <timestamp>_camera1.png
-        │   ├── <timestamp>_camera2.png
-        │   └── <timestamp>_camera3.png
-        └── <agent_id_B>/              # e.g. 5942  (cooperative neighbour)
-            ├── <timestamp>.pcd
-            ├── <timestamp>.yaml
-            └── ...
-```
-
-### PCD File Format
-
-```
-# .PCD v0.7 - Point Cloud Data file format
-VERSION 0.7
-FIELDS x y z rgb
-SIZE 4 4 4 4
-TYPE F F F F
-COUNT 1 1 1 1
-WIDTH <N_points>
-HEIGHT 1
-VIEWPOINT 0 0 0 1 0 0 0
-POINTS <N_points>
-DATA ascii
-<x> <y> <z> <intensity_packed_as_rgb_float>
-...
-```
-
-- Points are in the **agent's own local (sensor) coordinate frame**
-- `x` = forward (in vehicle heading direction), `y` = lateral, `z` = up
-- Typical point count: 50 000 – 100 000 points per frame
-- LiDAR range: up to ~100 m (CARLA simulated Velodyne HDL-64E)
-
-### YAML Metadata Format
-
-Each `<timestamp>.yaml` contains:
-
-```yaml
-lidar_pose:              # Agent's LiDAR sensor pose in WORLD coordinates
-  - x                    # metres
-  - y
-  - z
-  - roll                 # degrees
-  - yaw                  # degrees  (0 = East, 90 = North in CARLA)
-  - pitch                # degrees
-
-true_ego_pos:            # Vehicle body centre in world coordinates
-  - x, y, z, roll, yaw, pitch
-
-ego_speed: <float>       # m/s
-
-camera0:                 # Intrinsic & extrinsic for each camera
-  intrinsic: [[fx,0,cx],[0,fy,cy],[0,0,1]]
-  extrinsic: [[...4x4 matrix...]]
-  cords: [x, y, z, roll, pitch, yaw]
-
-vehicles:                # Ground-truth bounding boxes of ALL visible vehicles
-  <vehicle_id>:
-    location: [x, y, z]  # World position of vehicle reference point
-    center:   [dx, dy, dz] # Offset from location to vehicle centre (body frame)
-    extent:   [half_l, half_w, half_h]  # Half-dimensions in metres
-    angle:    [roll, yaw, pitch]        # Vehicle orientation (degrees)
-    speed:    <float>    # m/s
-```
-
-**Ground-truth vehicle world position** = `location + center`
-
-### Coordinate System
-
-```
-         North (+Y in world)
-              ↑
-              │
-  West ───────┼──────── East (+X in world)
-              │
-              ↓
-         South
-
-Agent local frame:
-  +X = vehicle heading direction
-  +Y = left of vehicle
-  +Z = up
-```
-
-Transformation from agent A's local frame to agent B's local frame:
-
-```python
-T_A_to_world = pose_to_matrix(A_lidar_pose)
-T_world_to_B = inv(pose_to_matrix(B_lidar_pose))
-T_A_to_B     = T_world_to_B @ T_A_to_world
-pts_in_B     = (T_A_to_B @ pts_homogeneous.T).T[:, :3]
-```
-
-### Scenario Statistics (Test Split)
-
-| Metric                          | Value         |
-|---------------------------------|---------------|
-| Number of scenarios             | 16            |
-| Agents per scenario             | 2 – 5         |
-| Frames per scenario             | ~98 – 178     |
-| Average GT vehicles per frame   | 2 – 12        |
-| LiDAR points per frame          | ~50K – 100K   |
+No trained model is used in either analysis — both work directly on raw
+sensor data (point clouds or detection counts) against ground truth.
 
 ---
 
 ## Codebase Structure
 
-```
 CoopPerception/
-├── configs/
-│   └── default.yaml              # Hyper-parameters and grid settings
-│
-├── data/
-│   └── opv2v_dataset.py          # PyTorch Dataset wrapper for OPV2V
-│
-├── models/
-│   ├── bev_encoder.py            # BEV feature extractor (CNN)
-│   └── seg_head.py               # Semantic segmentation head
-│
-├── fusion/
-│   └── max_fusion.py             # Element-wise max BEV fusion
-│
-├── utils/
-│   ├── compression.py            # Quantisation + sparse encoding
-│   ├── transform.py              # Affine BEV pose alignment
-│   ├── metrics.py                # IoU, coverage, bandwidth metrics
-│   ├── visualization.py          # BEV plotting utilities
-│   └── semantic_filtering.py     # Confidence / importance filtering
-│
-├── experiments/
-│   ├── prove_cooperation.py      # *** MAIN PROOF SCRIPT ***
-│   ├── train.py                  # Model training loop
-│   ├── test.py                   # Model evaluation
-│   └── inference.py              # Single-frame inference example
-│
-└── results/                      # Auto-created by prove_cooperation.py
-    ├── results.json
-    ├── summary_dashboard.png
-    ├── boxplot_coverage_recall.png
-    ├── per_scenario_coverage.png
-    ├── blind_spot_histogram.png
-    ├── improvement_vs_agents.png
-    ├── cdf_comparison.png
-    └── bev_comparison.png
-```
+
+└── experiments/
+
+└── prove_cooperation.py        # OPV2V — main statistical proof script  
+dairv2x_camera_analysis.py          # DAIR-V2X — camera coverage analysis  
+
+**Note:** earlier exploratory work included a CNN-based BEV semantic
+segmentation pipeline (`models/`, `fusion/`, `utils/compression.py`,
+`utils/semantic_filtering.py`, `experiments/train.py`) intended to learn a
+compressible BEV representation. This was scoped out in favour of the two
+simpler, deterministic methods above, which fully proved the cooperative
+perception hypothesis without the added time and risk of training a custom
+model. These files are retained for reference but were **not used** to
+generate any reported results.
 
 ---
 
-## How to Run the Proof
+## How to Run
 
-### Prerequisites
+### 1. Download Datasets
 
-Use the pre-installed `coalign` Anaconda environment which contains all
-required packages (numpy, scipy, matplotlib, open3d, torch, PyYAML).
+**OPV2V** (simulated, required for `prove_cooperation.py`):
+- Download from https://mobility-lab.seas.ucla.edu/opv2v/
+- Download the **test split** only (`test-012/`, ~32 GB)
+- Place at `~/Downloads/test-012/`
 
+**DAIR-V2X** (real-world, required for `dairv2x_camera_analysis.py`):
+- Download from https://thudair.baai.ac.cn/index
+- Registration required
+- Download the **cooperative-vehicle-infrastructure** example subset
+- Place at `~/Downloads/example-cooperative-vehicle-infrastructure/`
+
+### 2. Run OPV2V Analysis
 ```bash
-# Activate the environment
 conda activate coalign
-
-# Or use the full path (no activation needed)
-/home/student/anaconda3/envs/coalign/bin/python \
-    experiments/prove_cooperation.py
+python experiments/prove_cooperation.py
 ```
+Runtime: ~10–20 minutes on CPU. Outputs saved to `results/`.
 
-### Expected Runtime
+### 3. Run DAIR-V2X Analysis
+```bash
+python dairv2x_camera_analysis.py
+```
+Outputs saved to `results_dairv2x/`.
 
-~10–20 minutes on CPU for the full test set (16 scenarios × 30 sampled frames).
+---
 
-### Output
+## Output Files
 
-All outputs are written to `CoopPerception/results/`:
+### OPV2V → `results/`
+| File | Description |
+|---|---|
+| `results.json` | Full statistical results |
+| `summary_dashboard.png` | 6-panel summary |
+| `boxplot_coverage_recall.png` | Box plots with significance markers |
+| `per_scenario_coverage.png` | Per-scenario bar chart |
+| `blind_spot_histogram.png` | Distribution of perception gain |
+| `improvement_vs_agents.png` | Coverage gain vs agent count |
+| `cdf_comparison.png` | CDF comparison |
+| `bev_comparison.png` | Side-by-side BEV visualisation |
 
-| File                          | Description                                   |
-|-------------------------------|-----------------------------------------------|
-| `results.json`                | Full statistical table (machine-readable)     |
-| `summary_dashboard.png`       | All metrics in one figure (use in report)     |
-| `boxplot_coverage_recall.png` | Box plots with significance markers           |
-| `per_scenario_coverage.png`   | Per-scenario comparison bar chart             |
-| `blind_spot_histogram.png`    | Distribution of perception gain               |
-| `improvement_vs_agents.png`   | Coverage gain as a function of agent count    |
-| `cdf_comparison.png`          | Cumulative distribution of both metrics       |
-| `bev_comparison.png`          | Side-by-side BEV visualisation with GT boxes  |
+### DAIR-V2X → `results_dairv2x/`
+| File | Description |
+|---|---|
+| `summary_stats.json` | Per-frame + aggregate statistics |
+| `dashboard.png` | 4-panel summary (coverage, blind spot, CDF, elimination rate) |
+| `blind_spot_histogram.png` | Distribution of blind spots |
+| `coverage_bar.png` | Vehicle vs cooperative coverage |
+| `cdf_comparison.png` | CDF of vehicle coverage |
+| `sidebyside/frame_XX.png` | Top 6 frames with highest blind spot count, annotated vehicle + RSU camera pairs |
 
 ---
 
 ## Metrics and Methodology
 
-### 1. Scene Coverage (%)
+### OPV2V — Scene Coverage (%)
 
-```
 coverage = (occupied BEV cells) / (total BEV cells) × 100
-```
 
-BEV grid: 400 × 400 cells, 0.25 m/cell, range ±50 m in X and Y.
+BEV grid: 400 × 400 cells, 0.25 m/cell, ±50m range. Height filter: −3m < z < 5m.
 
-- **Single-agent**: only ego vehicle's LiDAR points are projected
-- **Cooperative**: all agents' point clouds (transformed to ego frame) are merged
+### OPV2V — Vehicle Recall (%)
+A ground-truth vehicle counts as "detected" if at least one occupied BEV cell falls within its bounding box footprint.
 
-### 2. Vehicle Recall (%)
+### OPV2V — Statistical Tests
+| Test | Purpose |
+|---|---|
+| Paired t-test | Significance — frames are paired (same scene, single vs cooperative) |
+| Wilcoxon signed-rank | Non-parametric robustness check |
+| Cohen's d | Effect size (> 0.8 = large) |
+| Bootstrap 95% CI | Confidence interval on mean improvement (2,000 resamples) |
 
-For each ground-truth vehicle bounding box (from YAML), a vehicle is
-**detected** if at least one occupied BEV cell falls within its footprint.
+### DAIR-V2X — Coverage and Blind Spot
 
-```
-recall = (detected GT vehicles) / (total GT vehicles) × 100
-```
+vehicle_coverage = vehicle_count / coop_count × 100
 
-### 3. Blind-Spot Reduction
+blind_spot_count = coop_count - vehicle_count
 
-```
-blind_spot_pct = (cells occupied cooperatively but NOT single-agent) /
-                 (total BEV cells) × 100
-```
+blind_spot_pct   = blind_spot_count / coop_count × 100
 
-This directly quantifies the area that cooperation unlocks.
+elimination_rate = rsu_catches / blind_spot_count × 100  
 
-### 4. Statistical Tests
+where `coop_count` is the ground-truth object count for the scene, `vehicle_count` is what the vehicle camera detects, and `rsu_catches` is an estimate of how many blind-spot objects the RSU camera additionally contributes.
 
-| Test              | Purpose                              |
-|-------------------|--------------------------------------|
-| Paired t-test     | Parametric significance (normality assumed) |
-| Wilcoxon signed-rank | Non-parametric significance (robust) |
-| Cohen's d         | Effect size (> 0.8 = large effect)   |
-| Bootstrap 95% CI  | Confidence interval on mean improvement |
+### Why DAIR-V2X is Descriptive
 
-Significance levels: * p < 0.05,  ** p < 0.01,  *** p < 0.001
-
-### 5. Coordinate Transformation
-
-Points from agent N are transformed to ego agent E's coordinate frame:
-
-```
-T_N→E = inv(pose_to_world(E_pose)) × pose_to_world(N_pose)
-```
-
-where `pose_to_world` builds a 4×4 homogeneous matrix from
-`[x, y, z, roll, yaw, pitch]` (OPV2V convention, angles in degrees).
+The cooperative coverage value for every DAIR-V2X frame is fixed at 100% by
+definition (it equals the ground-truth label). A paired t-test comparing
+vehicle coverage against a constant has zero variance on one side, which
+violates the assumptions underlying a standard paired t-test and produces a
+trivially significant but not meaningful result. For this reason, DAIR-V2X
+results are reported **descriptively** (mean, standard deviation, 95% CI on
+the blind-spot percentage) rather than through formal hypothesis testing,
+while OPV2V — where both single-agent and cooperative coverage are genuine
+variables computed from real sensor data — supports rigorous inferential
+statistics.
 
 ---
 
-## Results
+## Known Limitations
 
-*(Auto-generated after running `prove_cooperation.py`)*
+### OPV2V Analysis (`prove_cooperation.py`)
 
-Results will be printed to stdout and saved to `results/results.json`.
-Key expected findings based on the OPV2V benchmark literature:
+| Limitation | Description | Future Work |
+|---|---|---|
+| Frame sub-sampling may miss variability | Only every 5th frame is analysed, capped at 30 frames per scenario, to keep runtime manageable | Run on the full uncapped frame set to confirm results hold at finer temporal resolution |
+| ASCII PCD fallback parser is manual | If Open3D fails to read a `.pcd` file, a hand-written line-by-line parser is used as a fallback, which may silently mis-parse malformed or non-standard files without raising an error | Add explicit validation/logging when the fallback parser is triggered, so silent failures are visible |
+| Vehicle recall uses point-occupancy, not a trained detector | A ground-truth vehicle is "detected" if any raw LiDAR point falls within its bounding box — this is a geometric proxy for detection, not the output of an actual object detection model | Compare against a trained 3D detector's predictions for a more realistic detection-accuracy metric |
 
-| Metric                  | Single-Agent | Cooperative | Improvement |
-|-------------------------|--------------|-------------|-------------|
-| Scene Coverage (%)      | ~12–18%      | ~20–35%     | +~10–20%    |
-| Vehicle Recall (%)      | ~60–75%      | ~80–95%     | +~15–25%    |
-| Blind-Spot Area (%)     | —            | —           | +~8–18%     |
+### DAIR-V2X Analysis (`dairv2x_camera_analysis.py`)
 
-Statistical significance: p < 0.001 (paired t-test and Wilcoxon).
+| Limitation | Description | Future Work |
+|---|---|---|
+| Elimination rate is a count-based heuristic | `rsu_catches = max(0, i_count - v_count)` estimates RSU's blind-spot recovery by comparing object *counts*, not verified object identity — if RSU detects a different object than the one the vehicle missed, it is still counted as a "catch" | Match detections to ground-truth object IDs to confirm RSU recovers the *same* missed object |
+| No cross-camera bounding box overlap check | Object counts are compared by class label only; vehicle and RSU detections of "Car" are not verified to refer to the same physical car in the scene | Apply 2D box IoU or 3D triangulation across camera viewpoints to confirm correspondence |
+| Cooperative coverage analysed descriptively, not inferentially | Cooperative coverage is fixed at 100% (it equals ground truth by definition), so a paired t-test against a constant violates standard test assumptions despite being computed in code | Treat this as a methodological constraint of the dataset structure rather than something to "fix" — descriptive statistics remain the appropriate choice |
 
 ---
 
 ## References
 
-1. **OPV2V Dataset**: Xu, R., Xiang, H., et al. (2022). *OPV2V: An Open
-   Benchmark Dataset and Fusion Pipeline for Perception with Vehicle-to-Vehicle
-   Communication*. ICRA 2022. [Paper](https://arxiv.org/abs/2109.12764)
-
-2. **OpenCOOD Framework**: Xu, R. et al. (2022).
-   [GitHub](https://github.com/DerrickXuNu/OpenCOOD)
-
-3. **Coopernaut**: Cui, C., et al. (2022). *Coopernaut: End-to-End Driving
-   with Cooperative Perception for Networked Vehicles*. CVPR 2022.
-   [Project Page](https://ut-austin-rpl.github.io/Coopernaut/)
-
-4. **TUMTraf-V2X**: Zimmer, W., et al. (2024). *TUMTraf-V2X Cooperative
-   Perception Dataset*.
-   [Dataset](https://tum-traffic-dataset.github.io/tumtraf-v2x/)
-
-5. **F-Cooper**: Chen, Q., et al. (2019). *F-Cooper: Feature based Cooperative
-   Perception for Autonomous Vehicle Edge Computing System using 3D Point Clouds*.
-   SEC 2019.
-
-6. **V2VNet**: Wang, T., et al. (2020). *V2VNet: Vehicle-to-Vehicle
-   Communication for Joint Perception and Prediction*. ECCV 2020.
+1. Xu, R., Xiang, H., Xia, X., Han, X., Li, J., & Ma, J. (2022). OPV2V: An Open Benchmark Dataset and Fusion Pipeline for Perception with Vehicle-to-Vehicle Communication. *ICRA 2022*. https://doi.org/10.1109/ICRA46639.2022.9812038
+2. Solovyev, R., Wang, W., & Gabruseva, T. (2021). Weighted boxes fusion: Ensembling boxes from different object detection models. *Image and Vision Computing*, 107, 104117.
+3. Liu, Y.-C., Tian, J., Glaser, N., & Kira, Z. (2020). When2com: Multi-agent perception via communication graph grouping. *CVPR 2020*.
+4. DAIR-V2X Dataset: https://thudair.baai.ac.cn/index
