@@ -34,8 +34,6 @@ The system is validated through two independent strands of work:
  
 ## Repository Structure
 
-## 📁 Repository Structure
-
 ```text
 FYP-AVS/
 │
