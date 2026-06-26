@@ -33,6 +33,57 @@ The system is validated through two independent strands of work:
 ---
  
 ## Repository Structure
+
+## 📁 Repository Structure
+
+```text
+FYP-AVS/
+│
+├── docs/                                 # Project documentation and reporting assets
+│   ├── FIT3164-Final-Written-Report.pdf  # Final technical project thesis document
+│   ├── MDS17.pptx.pdf                    # Mid-semester milestone presentation deck
+│   └── System-architecture.png           # Global perception system engineering schematic
+│
+├── final_demo/                           # Core physical demonstration framework
+│   ├── bandwidth-summary/               # JPEG compression quality trade-off experiment
+│   ├── semantic-summary/                # transmission strategy comparison output panel
+│   ├── testing-0 (pedestrian)/         
+│   ├── testing-1 (queue)/               
+│   ├── testing-2 (queue)/              
+│   ├── testing-3 (queue & activation)/  
+│   ├── 01_ego_comparison.jpg             # Output panel: Isolated local baseline vehicle tracking
+│   ├── 02_fused_comparison.jpg           # Output panel: Recovered tracking via WBF late-fusion
+│   ├── q01_ego_view.jpg                  # Output panel: Native continuous timeline video stream
+│   ├── q02_fused_panel.jpg               # Output panel: Decoded RSU stream mapped to the Ego grid
+│   ├── calibrate.py                      # Tier 1: Automated SIFT background matrix calculation tool
+│   ├── config.py                         # System wide hyper-parameters & logic trigger thresholds
+│   ├── coop_perception.py               # Experiment 1: Standalone cross-camera late-fusion pipeline
+│   ├── ego_check.py                      # Local diagnostic baseline verification tool
+│   ├── homography.npy                    # Pre-computed matrix array configuration storage file
+│   ├── queue_perception.py               # Experiment 2: Continuous multi-object scene tracking engine
+│   ├── README.md                         # Focused deployment documentation for demonstration scripts
+│   ├── run_demo.sh                       # Automation bash script driving the execution pipeline
+│   └── yolov8n.pt                        # Pre-trained deep-learning neural network object weights
+│
+├── stat_analysis/                        # Comprehensive statistical evaluation suite
+│   ├── CoopPerception/                   # Framework benchmarking library source folder
+│   │   ├── configs/                      # Data parser configuration setup templates
+│   │   ├── data/                         # Native benchmarking validation cache directories
+│   │   ├── experiments/                  # Evaluation script library files
+│   │   │   └── prove_cooperation.py      # Cross-camera performance metric generator
+│   │   ├── fusion/                       # Bound array math and spatial fusion layer backends
+│   │   ├── models/                       # Custom network block model layers definitions
+│   │   ├── results/                      # Raw performance matrix validation log data dumps
+│   │   ├── results_dairv2x/              # Benchmarking metrics matching standard DAIR-V2X layouts
+│   │   └── utils/                        # Geometric coordinate helpers & dataset tools
+│   ├── dairv2x_camera_analysis.py        # Dataset evaluation parser for open vehicle benchmarks
+│   ├── main.py                           # Central control gateway for statistical calculations
+│   └── README.md                         # Detailed documentation regarding statistical analyses
+│
+└── README.md                             # Root-level landing page documentation
+
+```
+
 ---
  
 ## Key Results
