@@ -39,10 +39,10 @@ The system is validated through two independent strands of work:
  
 ### Dataset Validation
  
-| Dataset | Single-Agent | Cooperative | Gain | Statistical Test |
-|---|---|---|---|---|
-| **OPV2V** (simulated LiDAR, 407 frames, 16 scenarios) | 7.77% ± 1.38% | 15.22% ± 4.33% | **+7.44%** | Paired t-test p = 9.67×10⁻¹⁴⁵, Cohen's d = 2.011 |
-| **DAIR-V2X** (real-world camera, 46 pairs) | 55.9% ± 13.5% | 100% (ground truth) | **+44.1%** | Descriptive (see [methodology note](./CoopPerception/README.md#why-dair-v2x-is-descriptive)) |
+| Dataset | Single-Agent | Cooperative | Gain | 
+|---|---|---|---|
+| **OPV2V** (simulated LiDAR, 407 frames, 16 scenarios) | 7.77% ± 1.38% | 15.22% ± 4.33% | **+7.44%** |
+| **DAIR-V2X** (real-world camera, 46 pairs) | 55.9% ± 13.5% | 100% (ground truth) | **+44.1%** |
  
 ![OPV2V Scene Coverage](./stat_analysis/CoopPerception/results/per_scenario_coverage.png)
 ![OPV2V Blind Spot Distribution](./stat_analysis/CoopPerception/results/blind_spot_histogram.png)
