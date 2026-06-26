@@ -7,7 +7,7 @@
 |---|---|
 | **Team** | Goh Jia Xuan, Ooi Pei Shuen, Ng Li Xian |
 | **Supervisor** | Dr. Tan Chee Keong |
-| **Final Report** | [FIT3164_Final_Written_Report.pdf](./docs/FIT3164_Final_Written_Report.pdf) |
+| **Final Report** | [FIT3164_Final_Written_Report.pdf](./docs/FIT3164-Final-Written-Report.pdf) |
 | **Final Presentation** | [Final Presentation Slides](https://canva.link/a1vu3ba7bnp9td4) |
 | **Project Poster** | [Project Poster](./docs/MDS17.pptx.pdf) |
 ---
